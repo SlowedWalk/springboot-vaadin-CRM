@@ -2,12 +2,14 @@ package tech.hidetora.application.views;
 
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.RouterLink;
 import com.vaadin.flow.theme.lumo.LumoUtility;
+import tech.hidetora.application.security.SecurityService;
 import tech.hidetora.application.views.list.ListView;
 
 /**
@@ -17,13 +19,20 @@ import tech.hidetora.application.views.list.ListView;
  */
 
 public class MainLayout extends AppLayout { // AppLayout is a Vaadin layout with a header and a responsive drawer.
-    public MainLayout() {
+    private final SecurityService securityService;
+
+    public MainLayout(SecurityService securityService) {
+        this.securityService = securityService;
         createHeader();
         createDrawer();
     }
 
     private void createHeader() {
         H1 logo = new H1("Vaadin CRM");
+
+        String user = securityService.getAuthenticatedUser().getUsername();
+        Button logout = new Button("Log out " + user, e -> securityService.logout());
+
         /**
          * Instead of styling the text with raw CSS,
          * use Lumo Utility Classes shipped with the default theme.
@@ -35,12 +44,13 @@ public class MainLayout extends AppLayout { // AppLayout is a Vaadin layout with
         /**
          * DrawerToggle is a menu button that toggles the visibility of the sidebar.
          * */
-        var header = new HorizontalLayout(new DrawerToggle(), logo );
+        var header = new HorizontalLayout(new DrawerToggle(), logo, logout);
 
         /**
          * Centers the components in the header along the vertical axis.
          * */
         header.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
+        header.expand(logo);
         header.setWidthFull();
         header.addClassNames(
                 LumoUtility.Padding.Vertical.NONE,
@@ -60,7 +70,8 @@ public class MainLayout extends AppLayout { // AppLayout is a Vaadin layout with
      * */
     private void createDrawer() {
         addToDrawer(new VerticalLayout(
-                new RouterLink("List", ListView.class)
+                new RouterLink("List", ListView.class),
+                new RouterLink("Dashboard", DashboardView.class)
         ));
     }
 }

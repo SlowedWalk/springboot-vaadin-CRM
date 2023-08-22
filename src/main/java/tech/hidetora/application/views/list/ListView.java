@@ -11,12 +11,13 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import jakarta.annotation.security.PermitAll;
 import lombok.extern.slf4j.Slf4j;
 import tech.hidetora.application.data.entity.Contact;
 import tech.hidetora.application.data.service.CrmService;
 import tech.hidetora.application.views.MainLayout;
 
-
+@PermitAll
 @PageTitle("Contacts | Vaadin CRM")
 @Route(value="", layout = MainLayout.class)
 @Slf4j
