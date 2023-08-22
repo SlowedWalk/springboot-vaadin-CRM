@@ -3,7 +3,7 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <!-- Project from https://start.vaadin.com/project/d72a7d0e-b669-4f0e-87fa-0df9aec67162 -->
-    <groupId>com.example.application</groupId>
+    <groupId>tech.hidetora.application</groupId>
     <artifactId>flowcrmtutorial</artifactId>
     <name>flowcrmtutorial</name>
     <version>1.0-SNAPSHOT</version>

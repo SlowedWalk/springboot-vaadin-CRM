@@ -1,4 +1,4 @@
-package com.example.application.data.entity;
+package tech.hidetora.application.data.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.Entity;

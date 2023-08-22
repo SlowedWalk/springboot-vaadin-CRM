@@ -1,7 +1,5 @@
-package com.example.application.views.list;
+package tech.hidetora.application.views.list;
 
-import com.example.application.data.entity.Contact;
-import com.example.application.data.service.CrmService;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
@@ -14,10 +12,13 @@ import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import lombok.extern.slf4j.Slf4j;
+import tech.hidetora.application.data.entity.Contact;
+import tech.hidetora.application.data.service.CrmService;
+import tech.hidetora.application.views.MainLayout;
 
 
 @PageTitle("Contacts | Vaadin CRM")
-@Route(value = "")
+@Route(value="", layout = MainLayout.class)
 @Slf4j
 public class ListView extends VerticalLayout { // The view extends VerticalLayout, which places all child components vertically.
     Grid<Contact> grid = new Grid<>(Contact.class); // The Grid component is typed with Contact.
@@ -37,6 +38,13 @@ public class ListView extends VerticalLayout { // The view extends VerticalLayou
         // Add the toolbar and grid to the VerticalLayout.
         add(createToolBar(), getContent());
         updateList();
+        closeEditor();
+    }
+
+    private void closeEditor() {
+        form.setContact(null);
+        form.setVisible(false);
+        removeClassName("editing");
     }
 
     public void configureGrid() {
@@ -49,6 +57,8 @@ public class ListView extends VerticalLayout { // The view extends VerticalLayou
         grid.addColumn(contact -> contact.getCompany().getName()).setHeader("Company");
         // Configure the columns to adjust automatically their size to fit their content.
         grid.getColumns().forEach(col -> col.setAutoWidth(true));
+
+        grid.asSingleSelect().addValueChangeListener(event -> editContact(event.getValue()));
     }
 
     private Component getContent() {
@@ -61,7 +71,7 @@ public class ListView extends VerticalLayout { // The view extends VerticalLayou
     }
 
     private HorizontalLayout createToolBar() {
-        filterText.setPlaceholder("Filter by name...");
+        filterText.setPlaceholder("Filter by name ...");
         filterText.setClearButtonVisible(true);
         /**
          * Configure the search field to fire value-change events only when the user stops typing.
@@ -75,6 +85,8 @@ public class ListView extends VerticalLayout { // The view extends VerticalLayou
 //            updateList();
 //        });
         Button addContactButton = new Button("Add Contact", new Icon(VaadinIcon.PLUS));
+        addContactButton.addClassName("hover");
+        addContactButton.addClickListener(click -> addContact());
 
         // The toolbar uses a HorizontalLayout to place the TextField and Button next to each other.
         var toolBar = new HorizontalLayout(filterText, addContactButton);
@@ -88,11 +100,41 @@ public class ListView extends VerticalLayout { // The view extends VerticalLayou
         // Use the service to fetch the companies and statuses from the database.
         form = new ContactForm(service.findAllCompanies(), service.findAllStatuses());
         form.setWidth("25em");
+        form.addSaveListener(this::saveContact);
+        form.addDeleteListener(this::deleteContact);
+        form.addCloseListener(e -> closeEditor());
     }
 
     // updateList() sets the grid items by calling the service with the value from the filter text field.
     private void updateList() {
         System.out.println("Filter text: " + filterText.getValue());
         grid.setItems(service.findAllContacts(filterText.getValue()));
+    }
+
+    public void editContact(Contact contact) {
+        if (contact == null) {
+            closeEditor();
+        } else {
+            form.setContact(contact);
+            form.setVisible(true);
+            addClassName("editing");
+        }
+    }
+
+    private void addContact() {
+        grid.asSingleSelect().clear();
+        editContact(new Contact());
+    }
+
+    private void saveContact(ContactForm.SaveEvent event) {
+        service.saveContact(event.getContact());
+        updateList();
+        closeEditor();
+    }
+
+    private void deleteContact(ContactForm.DeleteEvent event) {
+        service.deleteContact(event.getContact());
+        updateList();
+        closeEditor();
     }
 }

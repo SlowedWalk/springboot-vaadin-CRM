@@ -1,8 +1,5 @@
-package com.example.application.views.list;
+package tech.hidetora.application.views.list;
 
-import com.example.application.data.entity.Company;
-import com.example.application.data.entity.Contact;
-import com.example.application.data.entity.Status;
 import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.Key;
@@ -10,11 +7,15 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.EmailField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.shared.Registration;
+import tech.hidetora.application.data.entity.Company;
+import tech.hidetora.application.data.entity.Contact;
+import tech.hidetora.application.data.entity.Status;
 
 import java.util.List;
 
@@ -66,17 +67,33 @@ public class ContactForm extends FormLayout {
         delete.addThemeVariants(ButtonVariant.LUMO_ERROR);
         close.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
 
+        save.addClassName("hover");
+        delete.addClassName("hover");
+        close.addClassName("hover");
+
         /**
          * Defines keyboard shortcuts: Enter to save and Escape to close the editor.
          * */
         save.addClickShortcut(Key.ENTER);
         close.addClickShortcut(Key.ESCAPE);
 
-        save.addClickListener(event -> validateAndSave()); // (1)
-        delete.addClickListener(event -> fireEvent(new DeleteEvent(this, contactBinder.getBean()))); // (2)
-        close.addClickListener(event -> fireEvent(new CloseEvent(this))); // (3)
-
-        contactBinder.addStatusChangeListener(e -> save.setEnabled(contactBinder.isValid())); // (4)
+        /**
+         * The save button calls the validateAndSave() method.
+         * */
+        save.addClickListener(event -> validateAndSave());
+        /**
+         * The delete button triggers a delete event and passes the active contact.
+         * */
+        delete.addClickListener(event -> fireEvent(new DeleteEvent(this, contactBinder.getBean())));
+        /**
+         * The cancel button fires a close event.
+         * */
+        close.addClickListener(event -> fireEvent(new CloseEvent(this)));
+        /**
+         * Validates the form every time it changes.
+         * If it’s invalid, it disables the save button to avoid invalid submissions.
+         * */
+        contactBinder.addStatusChangeListener(e -> save.setEnabled(contactBinder.isValid()));
 
         /**
          * Returns a HorizontalLayout containing the buttons to place them next to each other.
@@ -89,9 +106,14 @@ public class ContactForm extends FormLayout {
     }
 
     private void validateAndSave() {
+        /**
+         * Fire a save event, so the parent component can handle the action.
+         * */
+        save.setEnabled(false);
         if(contactBinder.isValid()) {
             fireEvent(new SaveEvent(this, contactBinder.getBean())); // (5)
         }
+        Notification.show("Contact saved", 3000, Notification.Position.TOP_CENTER);
     }
 
     // Events

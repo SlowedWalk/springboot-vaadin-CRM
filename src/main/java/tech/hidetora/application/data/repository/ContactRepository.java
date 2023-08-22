@@ -1,6 +1,6 @@
-package com.example.application.data.repository;
+package tech.hidetora.application.data.repository;
 
-import com.example.application.data.entity.Contact;
+import tech.hidetora.application.data.entity.Contact;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
